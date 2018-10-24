@@ -35,31 +35,31 @@ def constructYvector(rec, input_size):
     print("imgsize ", rec.imgsize)
     print("cellsize ", cell_size)
     for o in rec.objects:
-        y=[0,0,0,0,0,0,0,0,0]
+        y=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
         if o.label=='VOCmotorbikes':
-            y[5]=1
+            y[11]=1
         if o.label=='VOCbicycles':
-            y[6]=1
+            y[12]=1
         if o.label=='VOCpeople':
-            y[7]=1
+            y[13]=1
         if o.label=='VOCcars':
-            y[8]=1
+            y[14]=1
         if o.bbox:
+            y[0] = 1
             width=(o.bbox[2]-o.bbox[0])
             height=(o.bbox[3]-o.bbox[1])
             center_of_box=[o.bbox[2]-width/2, o.bbox[3]-height/2]
-            
             row_where_center_is=int(center_of_box[0]/cell_size[0])
             col_where_center_is=int(center_of_box[1]/cell_size[1])
             print("center of box", center_of_box)
             print ("row: ", row_where_center_is, " col: ", col_where_center_is)
             relative_center_of_box_x = (center_of_box[0]%cell_size[0])/cell_size[0]
             relative_center_of_box_y = (center_of_box[1]%cell_size[1])/cell_size[1]
-            y[0]=1
-            y[1]=relative_center_of_box_x
-            y[2]=relative_center_of_box_y
-            y[3]=width/rec.imgsize[0]
-            y[4]=height/rec.imgsize[1]
+            y[1]=1
+            y[2]=relative_center_of_box_x
+            y[3]=relative_center_of_box_y
+            y[4]=width/rec.imgsize[0]
+            y[5]=height/rec.imgsize[1]
             Y[row_where_center_is,col_where_center_is,:]=y
         
     return Y
