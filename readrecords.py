@@ -35,15 +35,17 @@ def constructYvector(rec, input_size):
     print("imgsize ", rec.imgsize)
     print("cellsize ", cell_size)
     for o in rec.objects:
-        y=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        y=[0,
+            0,0,0,0,0,0,0,0,0, #box1 (certainty, x,y,w,h,c1,c2,c3,c4
+            0,0,0,0,0,0,0,0,0]
         if o.label=='VOCmotorbikes':
-            y[11]=1
+            y[6]=1
         if o.label=='VOCbicycles':
-            y[12]=1
+            y[7]=1
         if o.label=='VOCpeople':
-            y[13]=1
+            y[8]=1
         if o.label=='VOCcars':
-            y[14]=1
+            y[9]=1
         if o.bbox:
             y[0] = 1
             width=(o.bbox[2]-o.bbox[0])
