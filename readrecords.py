@@ -30,7 +30,7 @@ def readAnnotations():
 
 def constructYvector(rec, input_size):
     number_of_cells=7
-    Y=np.zeros((number_of_cells, number_of_cells,9))
+    Y=np.zeros((number_of_cells, number_of_cells,19))
     cell_size=[rec.imgsize[0]/number_of_cells, rec.imgsize[1]/number_of_cells]
     print("imgsize ", rec.imgsize)
     print("cellsize ", cell_size)

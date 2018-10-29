@@ -60,8 +60,15 @@ X_test = X_test.reshape(X_test.shape[0], rows, cols, 3)
 #X_test = X_test.astype('float32')/255
 
 num_of_classes = len(Labels) 
+y_train = np.array(y_train)
+y_test = np.array(y_test)
+print("Y train shape is ", y_train.shape)
+print("Y test shape is ", y_test.shape)
 y_train = to_categorical(y_train, num_of_classes) 
 y_test = to_categorical(y_test, num_of_classes) 
+
+print("Y train shape is ", y_train.shape)
+print("Y test shape is ", y_test.shape)
 
 model = Sequential() 
 #==========model 1.0==================
@@ -189,7 +196,7 @@ model.add(LeakyReLU())
 model.add(Conv2D(512, kernel_size=(3, 3), padding="same", strides=1))
 model.add(LeakyReLU())
 model.add(MaxPooling2D(pool_size = (2, 2), strides=2))
-model.summary()
+
 model.add(Conv2D(1024, kernel_size=(3, 3), padding="same", strides=1))#layer 15
 model.add(LeakyReLU())
 model.add(Conv2D(512, kernel_size=(1, 1), padding="same", strides=1))
@@ -200,19 +207,19 @@ model.add(Conv2D(512, kernel_size=(1, 1), padding="same", strides=1))
 model.add(LeakyReLU())
 model.add(Conv2D(1024, kernel_size=(3, 3), padding="same", strides=1))
 model.add(LeakyReLU())
-model.add(MaxPooling2D(pool_size = (2, 2), strides=2))
-
-
-model.add(Conv2D(1024, kernel_size=(3, 3), padding="same", strides=1))
+#model.add(MaxPooling2D(pool_size = (2, 2), strides=2))
+#
+#
+#model.add(Conv2D(1024, kernel_size=(3, 3), padding="same", strides=1))
+#model.add(LeakyReLU())
+#model.add(Conv2D(1024, kernel_size=(3, 3), padding="same", strides=1))
+#model.add(LeakyReLU())
+#
+#model.add(Conv2D(1024, kernel_size=(3, 3), padding="same", strides=1))
+#model.add(LeakyReLU())
+model.add(Conv2D(19, kernel_size=(1, 1), strides=1))
 model.add(LeakyReLU())
-model.add(Conv2D(1024, kernel_size=(3, 3), padding="same", strides=1))
-model.add(LeakyReLU())
-
-model.add(Conv2D(1024, kernel_size=(3, 3), padding="same", strides=1))
-model.add(LeakyReLU())
-model.add(Conv2D(9, kernel_size=(1, 1), strides=1))
-model.add(LeakyReLU())
-
+model.summary()
 
 from multi_part_loss_function import multi_part_loss_function
 model.compile(loss= multi_part_loss_function, optimizer='adam', metrics=['accuracy'])
