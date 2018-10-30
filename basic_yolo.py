@@ -6,6 +6,7 @@ Created on Tue Sep  4 14:06:32 2018
 @author: dobrowol
 """
 
+import keras.backend as K
 import numpy as np 
 import re
 from matplotlib import pyplot as plt
@@ -18,10 +19,14 @@ from readrecords import readAnnotations, constructYvector
 from scipy import misc
 from skimage import transform 
 from os import path
-
+from tensorflow.python import debug as tf_debug
 from keras.datasets import mnist
 #from oct2py import octave
 from collections import defaultdict
+
+#sess = K.get_session()
+#sess = tf_debug.LocalCLIDebugWrapperSession(sess)
+#K.set_session(sess)
 
 #(X_train, y_train), (X_test, y_test) = mnist.load_data()
 PASopts = {}
@@ -64,8 +69,8 @@ y_train = np.array(y_train)
 y_test = np.array(y_test)
 print("Y train shape is ", y_train.shape)
 print("Y test shape is ", y_test.shape)
-y_train = to_categorical(y_train, num_of_classes) 
-y_test = to_categorical(y_test, num_of_classes) 
+#y_train = to_categorical(y_train, num_of_classes) 
+#y_test = to_categorical(y_test, num_of_classes) 
 
 print("Y train shape is ", y_train.shape)
 print("Y test shape is ", y_test.shape)
