@@ -20,9 +20,9 @@ class record(object):
 
 
 pattern="Image filename : \"(.*)\"|Bounding box for object (\d+) (\".*\") \(Xmin, Ymin\) - \(Xmax, Ymax\) : \((\d+), (\d+)\) - \((\d+), (\d+)\)|Image size \(X x Y x C\) : (\d+) x (\d+) x (\d+)|Database : (.*)|Pixel mask for object (\d+) (.*) : \"(.*)\"|Original label for object (\d+) \"(.*)\" : \"(.*)\""
-def readAnnotations():
+def readAnnotations(annotationDirectory):
     recs = []
-    for root, subdirs, files in os.walk('./VOCdata/VOC2005_1/Annotations/'):
+    for root, subdirs, files in os.walk(annotationDirectory):
         for f in files:
             filename = os.path.join(root,f)
             recs.append(readrecord(filename))
@@ -32,8 +32,7 @@ def constructYvector(rec, input_size):
     number_of_cells=7
     Y=np.zeros((number_of_cells, number_of_cells,19))
     cell_size=[rec.imgsize[0]/number_of_cells, rec.imgsize[1]/number_of_cells]
-    print("imgsize ", rec.imgsize)
-    print("cellsize ", cell_size)
+
     for o in rec.objects:
         y=[0,
             0,0,0,0,0,0,0,0,0, #box1 (certainty, x,y,w,h,c1,c2,c3,c4
@@ -50,11 +49,10 @@ def constructYvector(rec, input_size):
             y[0] = 1
             width=(o.bbox[2]-o.bbox[0])
             height=(o.bbox[3]-o.bbox[1])
-            center_of_box=[o.bbox[2]-width/2, o.bbox[3]-height/2]
+            center_of_box=[(o.bbox[2]-width)/2, (o.bbox[3]-height)/2]
             row_where_center_is=int(center_of_box[0]/cell_size[0])
             col_where_center_is=int(center_of_box[1]/cell_size[1])
-            print("center of box", center_of_box)
-            print ("row: ", row_where_center_is, " col: ", col_where_center_is)
+
             relative_center_of_box_x = (center_of_box[0]%cell_size[0])/cell_size[0]
             relative_center_of_box_y = (center_of_box[1]%cell_size[1])/cell_size[1]
             y[1]=1
@@ -62,6 +60,9 @@ def constructYvector(rec, input_size):
             y[3]=relative_center_of_box_y
             y[4]=width/rec.imgsize[0]
             y[5]=height/rec.imgsize[1]
+        
+            if row_where_center_is == 7 or col_where_center_is == 7:
+                print ("corrupted record ", o.bbox, " center box ", center_of_box, " cell size ", cell_size)
             Y[row_where_center_is,col_where_center_is,:]=y
         
     return Y
@@ -72,7 +73,7 @@ def readrecord(filename):
         for line in fd:
             a=re.findall(pattern, line)
             if a :
-                print (a)
+
                 if a[0][0] is not '':
                     rec.imagename=a[0][0]
                 if a[0][1] is not '':
@@ -81,12 +82,12 @@ def readrecord(filename):
                         boundedObject = rec.objects[int(a[0][1])-1] 
                     boundedObject.label = a[0][2]
                     boundedObject.bbox=[int(a[0][3]), int(a[0][4]), int(a[0][5]), int(a[0][6])]
-                    print(boundedObject.bbox)
+
                     if len(rec.objects) < int(a[0][1]):
                         rec.objects.append(boundedObject)
                 if a[0][7] is not '':
                     rec.imgsize=[int(a[0][7]), int(a[0][8]), int(a[0][9])]
-                    print(rec.imgsize)
+
                 if a[0][10] is not '':
                     rec.database=a[0][10]
                 if a[0][11] is not '':

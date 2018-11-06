@@ -25,8 +25,10 @@ def multi_part_loss_function(y_true,y_pred):
         tf.sqrt(y_pred[:,:,:,13:14])-tf.sqrt(y_true[:,:,:,13:14])))
     part6 = 5*K.square(tf.einsum('aij,aijk->aijk', is_box2_in_cell_responsible, 
         y_pred[:,:,:,15:18]-y_true[:,:,:,15:18]))
-    part7 = 0.5*K.square(tf.einsum('aij,aijk->aijk',is_cell_responsible,(y_pred[:,:,:,0]-y_true[:,:,:,0])))
-    return part1+part2+part3+part4+part5+part6+part7
+    print ("is cell responsible ", is_cell_responsible)
+    print ("ypred ", y_pred[:,:,:,0])
+    #part7 = 0.5*K.square(tf.einsum('aij,aij->aij',is_cell_responsible,(y_pred[:,:,:,0]-y_true[:,:,:,0])))
+    return part1+part2+part3+part4+part5+part6#+part7
         
         #5*K.square(tf.einsum('aij,aijk->aijk', is_box1_in_cell_responsible,
         #    y_pred[:,:,:,6:9]-y_true[:,:,:,6:9]))+\
