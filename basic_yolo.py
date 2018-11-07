@@ -56,17 +56,17 @@ model.save("./data/entire_model.h5")
 print("Saved model to disk")
 
 
-print ("shape of X_test ", len(context.X_test), " y_test ", len(context.y_test))
-score = model.evaluate(context.X_test, context.y_test, verbose=0) 
+print ("shape of X_test ", len(context.X), " y_test ", len(context.y))
+score = model.evaluate(context.X, context.y, verbose=0) 
 
 #print('Accuracy:', score[1])
 
-predictions = model.predict(context.X_test)
+predictions = model.predict(context.X)
 
 plt.figure(figsize=(15, 15)) 
 for i in range(10):    
     ax = plt.subplot(2, 10, i + 1)    
-    plt.imshow(context.X_test[i, :, :, 0], cmap='gray')    
-    plt.title("Digit: {}\nPredicted:    {}".format(np.argmax(context.y_test[i]), np.argmax(predictions[i])))    
+    plt.imshow(context.X[i, :, :, 0], cmap='gray')    
+    plt.title("Digit: {}\nPredicted:    {}".format(np.argmax(context.y[i]), np.argmax(predictions[i])))    
     plt.axis('off') 
 plt.show()
