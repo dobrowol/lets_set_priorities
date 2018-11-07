@@ -29,32 +29,37 @@ class PrepareTrainedModel(object):
         return self._load_strategy(context)
 
 
-def prepareData(X, y, records, inputSize):
+def prepareData(context):
     print("Loading images...")
     test_images_count = 0
     train_images_count = 0
-    print ("record loaded ", len(records))
-    for rec in records:
+    context.X = []
+    context.y = []
+    print ("record loaded ", len(context.records))
+    for rec in context.records:
         filename=path.join('VOCdata',rec.imagename)
         train_images_count += 1
-        X.append(transform.resize(misc.imread(filename), (inputSize,inputSize)))	
-        y.append(constructYvector(rec, inputSize))
+        context.X.append(transform.resize(misc.imread(filename), (context.INPUT_SIZE,context.INPUT_SIZE)))	
+        context.y.append(constructYvector(rec, context.INPUT_SIZE))
 
 
 
-    print ("Images loaded ", train_images_count, " X len ", len(X))
-    X = np.array(X)
-    rows, cols = X[0].shape[0], X[0].shape[1] 
-    X = X.reshape(X.shape[0], rows, cols, 3) 
-    X = np.vstack(X)
+    print ("Images loaded ", train_images_count, " X len ", len(context.X))
+    context.X = np.array(context.X)
+    context.y = np.array(context.y)
+    rows, cols = context.X[0].shape[0], context.X[0].shape[1] 
+    context.X = context.X.reshape(context.X.shape[0], rows, cols, 3) 
+    #context.X = np.vstack(context.X)
+    print ("X shape ", context.X.shape)
+    print ("y shape ", context.y.shape)
     #X_train = X_train.astype('float32')/255
     #X_test = X_test.astype('float32')/255
 
-    y = np.array(y)
+    context.y = np.array(context.y)
 
-def loadFromJson(context):
-    context.records = readAnnotations('./VOCdata/VOC2005_2/Annotations/')
-    prepareData(context.X_test, context.y_test, context.records, context.INPUT_SIZE)
+def loadFromJson(context_with_test_data):
+    context_with_test_data.records = readAnnotations('./VOCdata/VOC2005_2/Annotations/')
+    prepareData(context_with_test_data)
     json_file = open('./data/model.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
@@ -65,9 +70,9 @@ def loadFromJson(context):
     print("Loaded model from disk")
     return loaded_model
 
-def loadEntireModel(context):
-    context.records = readAnnotations('./VOCdata/VOC2005_2/Annotations/')
-    prepareData(context.X_test, context.y_test, context.records, context.INPUT_SIZE)
+def loadEntireModel(context_with_test_data):
+    context_with_test_data.records = readAnnotations('./VOCdata/VOC2005_2/Annotations/')
+    prepareData(context_with_test_data)
     loaded_model = load_model("./data/entire_model.h5")
     loaded_model.compile(loss= multi_part_loss_function, optimizer='adam', metrics=['accuracy'])
     print("Loaded model from disk")
@@ -77,17 +82,14 @@ def trainOnData(context):
     
 #FD=octave.extractfeatures(PASopts,imgset)
     context.records = readAnnotations('./VOCdata/VOC2005_1/Annotations/')
-    prepareData(context.X_train, context.y_train, context.records, context.INPUT_SIZE)
-    context.records = readAnnotations('./VOCdata/VOC2005_2/Annotations/')
-    prepareData(context.X_test, context.y_test, context.records, context.INPUT_SIZE)
+    prepareData(context)
+    
     print("Start training...")
-    print("Y train shape is ", context.y_train.shape)
-    print("Y test shape is ", context.y_test.shape)
+    print("Y train shape is ", context.y.shape)
     #y_train = to_categorical(y_train, num_of_classes) 
     #y_test = to_categorical(y_test, num_of_classes) 
+    rows, cols = context.X[0].shape[0], context.X[0].shape[1]
 
-    print("Y train shape is ", context.y_train.shape)
-    print("Y test shape is ", context.y_test.shape)
 
     model = Sequential() 
     #==========model 1.0==================
@@ -244,5 +246,7 @@ def trainOnData(context):
     model.compile(loss= multi_part_loss_function, optimizer='adam', metrics=['accuracy'])
 
 
-    model.fit(context.X_train, context.y_train, batch_size=128, epochs=20, verbose=1, validation_split=0.2) 
+    model.fit(context.X, context.y, batch_size=128, epochs=20, verbose=1, validation_split=0.2) 
+    context.records = readAnnotations('./VOCdata/VOC2005_2/Annotations/')
+    prepareData(context)
     return model
