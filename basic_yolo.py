@@ -60,13 +60,16 @@ print ("shape of X_test ", len(context.X), " y_test ", len(context.y))
 score = model.evaluate(context.X, context.y, verbose=0) 
 
 #print('Accuracy:', score[1])
-
+print (context.y)
+print("----------------------------------")
 predictions = model.predict(context.X)
 
-plt.figure(figsize=(15, 15)) 
-for i in range(10):    
-    ax = plt.subplot(2, 10, i + 1)    
-    plt.imshow(context.X[i, :, :, 0], cmap='gray')    
-    plt.title("Digit: {}\nPredicted:    {}".format(np.argmax(context.y[i]), np.argmax(predictions[i])))    
-    plt.axis('off') 
-plt.show()
+print (predictions)
+print (score)
+#plt.figure(figsize=(15, 15)) 
+#for i in range(10):    
+#    ax = plt.subplot(2, 10, i + 1)    
+#    plt.imshow(context.X[i, :, :, 0], cmap='gray')    
+#    plt.title("Digit: {}\nPredicted:    {}".format(np.argmax(context.y[i]), np.argmax(predictions[i])))    
+#    plt.axis('off') 
+#plt.show()

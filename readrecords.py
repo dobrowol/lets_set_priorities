@@ -2,6 +2,7 @@
 import re
 import os
 import numpy as np
+import re
 class obj(object):
     def __init__(self):
         self.label='';
@@ -28,22 +29,20 @@ def readAnnotations(annotationDirectory):
             recs.append(readrecord(filename))
     return recs
 
-def constructYvector(rec, input_size):
+def constructYvector(rec, input_size, output_size):
     number_of_cells=7
-    Y=np.zeros((number_of_cells, number_of_cells,19))
+    Y=np.zeros((number_of_cells, number_of_cells,output_size))
     cell_size=[rec.imgsize[0]/number_of_cells, rec.imgsize[1]/number_of_cells]
 
     for o in rec.objects:
-        y=[0,
-            0,0,0,0,0,0,0,0,0, #box1 (certainty, x,y,w,h,c1,c2,c3,c4
-            0,0,0,0,0,0,0,0,0]
-        if o.label=='VOCmotorbikes':
+        y=np.zeros((output_size))
+        if re.search('motorbike', o.label):
             y[6]=1
-        if o.label=='VOCbicycles':
+        if re.search('bicycle', o.label):
             y[7]=1
-        if o.label=='VOCpeople':
+        if re.search('people', o.label):
             y[8]=1
-        if o.label=='VOCcars':
+        if re.search('car', o.label):
             y[9]=1
         if o.bbox:
             y[0] = 1
