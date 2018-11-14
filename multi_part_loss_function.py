@@ -6,7 +6,7 @@ import tensorflow as tf
 def multi_part_loss_function(y_true,y_pred):
     is_cell_responsible=y_true[:,:,:,0]
     is_box1_responsible=y_true[:,:,:,1]
-    is_box2_responsible=y_true[:,:,:,10]
+    #is_box2_responsible=y_true[:,:,:,10]
     
     is_box1_in_cell_responsible = tf.einsum('aij,aij->aij',
         is_cell_responsible,is_box1_responsible)

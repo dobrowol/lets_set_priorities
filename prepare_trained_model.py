@@ -30,7 +30,7 @@ class PrepareTrainedModel(object):
         return self._load_strategy(context)
 
 
-def prepareData(context,output_size):
+def prepareData(context):
     print("Loading images...")
     train_images_count = 0
     context.X = []
@@ -41,7 +41,7 @@ def prepareData(context,output_size):
         yolo_filename=path.join('YOLOdata',rec.imagename)
         train_images_count += 1
         x = transform.resize(misc.imread(filename), (context.INPUT_SIZE,context.INPUT_SIZE))
-        y = constructYvector(rec, context.INPUT_SIZE, output_size)
+        y = constructYvector(rec, context.INPUT_SIZE, context.OUTPUT_SIZE)
         if not os.path.exists(os.path.dirname(yolo_filename)):
             os.makedirs(os.path.dirname(yolo_filename))
         with open(yolo_filename, 'a') as the_file:
@@ -68,7 +68,7 @@ def prepareData(context,output_size):
 
 def loadFromJson(context_with_test_data):
     context_with_test_data.records = readAnnotations('./VOCdata/VOC2005_2/Annotations/')
-    prepareData(context_with_test_data,output_size)
+    prepareData(context_with_test_data)
     json_file = open('./data/model.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
@@ -81,7 +81,7 @@ def loadFromJson(context_with_test_data):
 
 def loadEntireModel(context_with_test_data):
     context_with_test_data.records = readAnnotations('./VOCdata/VOC2005_2/Annotations/')
-    prepareData(context_with_test_data,output_size)
+    prepareData(context_with_test_data)
     loaded_model = load_model("./data/entire_model.h5")
     loaded_model.compile(loss= multi_part_loss_function, optimizer='adam', metrics=['accuracy'])
     print("Loaded model from disk")
@@ -113,7 +113,7 @@ def constructCustomYolo( rows, cols, output_size):
     model.add(LeakyReLU())
     return model
 
-def constructYolov2(rows, cols):
+def constructYolov2(rows, cols, output_size):
     model = Sequential()
     model.add(Conv2D(32, kernel_size=(3, 3), padding="same", strides=1, input_shape=(rows, cols, 3)))
     model.add(LeakyReLU())
@@ -170,7 +170,7 @@ def constructYolov2(rows, cols):
     #
     #model.add(Conv2D(1024, kernel_size=(3, 3), padding="same", strides=1))
     #model.add(LeakyReLU())
-    model.add(Conv2D(9, kernel_size=(1, 1), strides=1))
+    model.add(Conv2D(output_size, kernel_size=(1, 1), strides=1))
     model.add(LeakyReLU())
     return model
 
@@ -178,8 +178,7 @@ def trainOnData(context):
     
 #FD=octave.extractfeatures(PASopts,imgset)
     context.records = readAnnotations('./VOCdata/VOC2005_1/Annotations/')
-    output_size = 10
-    prepareData(context,output_size)
+    prepareData(context)
     
     print("Start training...")
     print("Y train shape is ", context.y.shape)
@@ -189,7 +188,7 @@ def trainOnData(context):
 
     
      
-    model = constructCustomYolo(rows, cols, output_size)
+    model = constructCustomYolo(rows, cols, context.OUTPUT_SIZE)
 
     
     model.summary()
@@ -198,6 +197,6 @@ def trainOnData(context):
 
 
     model.fit(context.X, context.y, batch_size=12, epochs=10, verbose=1, validation_split=0.2) 
-    context.records = readAnnotations('./VOCdata/VOC2005_2/Annotations/', output_size)
+    context.records = readAnnotations('./VOCdata/VOC2005_2/Annotations/')
     prepareData(context)
     return model
