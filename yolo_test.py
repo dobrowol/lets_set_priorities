@@ -3,11 +3,11 @@ import context
 from readrecords import readAnnotations
 from prepare_trained_model import prepareData
 import keras.backend as K
-# declare two symbolic floating-point scalars
-a = tf.placeholder(tf.float32)
-b = tf.placeholder(tf.float32)
+import numpy as np
+import pytest
+
 context = context.Context()
-context.records = readAnnotations('./VOCdata/VOC2005_1/Annotations/')
+context.records = readAnnotations('./VOCdata/VOC2005_1/Test_Annotations/')
 prepareData(context)
 y_true = tf.convert_to_tensor(context.y)
 y_pred = tf.zeros([1, 7, 7, 10], tf.float64)
@@ -28,9 +28,14 @@ part1 = 5 * K.square(tf.einsum('aij,aijk->aijk', is_box1_in_cell_responsible,
 #part3 = 5 * K.square(tf.einsum('aij,aijk->aijk', is_box1_in_cell_responsible,
 #                               y_pred[:, :, :, 6:9] - y_true[:, :, :, 6:9]))
 # create a simple symbolic expression using the add function
-add = tf.add(a, b)
+
 # bind 1.5 to ' a ' , 2.5 to ' b ' , and evaluate ' c '
-sess = tf.Session()
-binding = {a: 1.5, b: 2.5}
-c = sess.run(is_box1_in_cell_responsible, feed_dict=binding)
-print(c)
+
+
+def test_selection_of_box_with_center():
+    sess = tf.Session()
+    c = sess.run(is_box1_in_cell_responsible)
+    print(c.shape)
+    expected = np.zeros([1, 7, 7])
+    expected[0, 1, 1] = expected[0, 1, 3] = expected[0, 3, 3] = 1
+    assert((c == expected).all())
