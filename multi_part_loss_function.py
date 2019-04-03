@@ -1,6 +1,4 @@
 import keras.backend as K
-from math import sqrt
-import numpy as np
 import tensorflow as tf
 
 def multi_part_loss_function(y_true,y_pred):
