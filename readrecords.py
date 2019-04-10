@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-import re
+
 import os
 import numpy as np
 import re
+
+
 class obj(object):
     def __init__(self):
         self.label='';

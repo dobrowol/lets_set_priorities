@@ -36,7 +36,7 @@ square_root_of_expected_weights_and_heights = tf.sqrt(y_true[:, :, :, 4:6])
 def test_selection_of_box_with_center():
     sess = tf.Session()
     c = sess.run(is_box1_in_cell_responsible)
-    print(c.shape)
+
     expected = np.zeros([1, 7, 7])
     expected[0, 1, 1] = expected[0, 1, 3] = expected[0, 3, 3] = 1
     assert((c == expected).all())
@@ -45,8 +45,7 @@ def test_selection_of_box_with_center():
 def test_difference_of_coordinates():
     sess = tf.Session()
     c = sess.run(y_pred[:, :, :, 2:4] - y_true[:, :, :, 2:4])
-    print(c)
-    print(c.shape)
+
     assert(pytest.approx(c[0, 1, 1, 0], 0.001) == -0.948)
     assert (pytest.approx(c[0, 1, 1, 1], 0.001) == -0.996)
     assert (pytest.approx(c[0, 3, 3, 1], 0.01) == -0.593)
@@ -61,8 +60,35 @@ def test_select_only_important_coordinates():
     c = sess.run(part1)
     expected = np.square(1-0.948) + np.square(1-0.996)
     expected_too = np.square(1 - 0.593) + np.square(1 - 0.301)
+
+    assert (pytest.approx(c[0, 1, 1], 0.1) == expected)
+    assert (pytest.approx(c[0, 3, 3], 0.01) == expected_too)
+
+
+def test_multipart_function():
+    y_pred = tf.constant(4.0, shape=[1, 7, 7, 10], dtype="float64")
+    y_pred_part1 = y_pred[:, :, :, 0:4]
+    y_pred_part2 = tf.sqrt(y_pred[:, :, :, 4:6])
+    y_pred_part3 = y_pred[:, :, :, 6:10]
+    y_pred_prepared = tf.concat([y_pred_part1, y_pred_part2, y_pred_part3], -1)
+
+    y_true_part1 = y_true[:, :, :, 0:4]
+    y_true_part2 = tf.sqrt(y_true[:, :, :, 4:6])
+    y_true_part3 = y_true[:, :, :, 6:10]
+    y_true_prepared = tf.concat([y_true_part1, y_true_part2, y_true_part3], -1)
+
+    sess = tf.Session()
+    c = sess.run(y_pred_prepared)
+    expected = np.square(1-0.948) + np.square(1-0.996)
+    expected_too = np.square(1 - 0.593) + np.square(1 - 0.301)
     print(c)
     print(c.shape)
-    assert (pytest.approx(c[0, 1, 1], 0.001), expected)
-    assert (pytest.approx(c[0, 3, 3], 0.01), expected_too)
+
+    sess = tf.Session()
+    c = sess.run(y_true_prepared)
+    print(c)
+    print(c.shape)
+
+    multipart1 = K.square(tf.einsum('aij,aijk->aijk', is_cell_responsible,
+                       y_pred - y_true))
 

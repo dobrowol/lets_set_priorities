@@ -12,20 +12,16 @@ from keras.layers.advanced_activations import LeakyReLU
 from readrecords import readAnnotations, constructYvector
 from multi_part_loss_function import multi_part_loss_function
 
+from os import path
 
-from os import path
-#from tensorflow.python import debug as tf_debug
-#from keras.datasets import mnist
-#from oct2py import octave
-from collections import defaultdict
-from os import path
-import re
 from skimage import transform 
 from scipy import misc
+
 
 class PrepareTrainedModel(object):
     def __init__(self, load_strategy):
         self._load_strategy = load_strategy
+
     def load(self, context):
         return self._load_strategy(context)
 
